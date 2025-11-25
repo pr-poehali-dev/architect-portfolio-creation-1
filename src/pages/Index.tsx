@@ -56,10 +56,18 @@ const heroSlides = [
   "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&h=1080&fit=crop"
 ];
 
+const heroHeadlines = [
+  "Превращаю замыслы в фотореалистичные эмоции",
+  "Дайте жизнь проекту до закладки первого камня",
+  "Архитектура, которую хочется потрогать"
+];
+
 export default function Index() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [lightboxImage, setLightboxImage] = useState<number | null>(null);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -71,6 +79,17 @@ export default function Index() {
   const filteredItems = selectedCategory === 'all' 
     ? portfolioItems 
     : portfolioItems.filter(item => item.category === selectedCategory);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    alert(`Спасибо, ${formData.name}! Я свяжусь с вами по адресу ${formData.email}`);
+    setFormData({ name: '', email: '', message: '' });
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -84,8 +103,9 @@ export default function Index() {
           >
             <img 
               src={slide} 
-              alt={`Slide ${index + 1}`}
+              alt={`Архитектурная визуализация ${index + 1}`}
               className="w-full h-full object-cover"
+              loading={index === 0 ? "eager" : "lazy"}
             />
             <div className="absolute inset-0 bg-black/40" />
           </div>
@@ -101,7 +121,7 @@ export default function Index() {
           <Button 
             size="lg" 
             onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
-            className="bg-accent hover:bg-accent/90 text-white px-8 py-6 text-lg animate-fade-in-up"
+            className="bg-accent hover:bg-accent/90 text-white px-8 py-6 text-lg animate-fade-in-up button-hover-effect"
             style={{animationDelay: '0.4s'}}
           >
             Смотреть работы
@@ -155,6 +175,7 @@ export default function Index() {
                   src={item.image} 
                   alt={item.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                   <div className="text-white">
@@ -192,8 +213,9 @@ export default function Index() {
             <div className="animate-scale-in">
               <img 
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop" 
-                alt="Архитектор-визуализатор"
+                alt="Архитектор-визуализатор — профессиональная 3D визуализация"
                 className="w-full aspect-square object-cover shadow-2xl"
+                loading="lazy"
               />
             </div>
           </div>
@@ -209,22 +231,36 @@ export default function Index() {
             Готов обсудить ваш проект и воплотить вашу идею в жизнь
           </p>
           
-          <form className="space-y-6 animate-fade-in">
+          <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
             <Input 
               placeholder="Ваше имя" 
               className="h-12 text-base"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              required
             />
             <Input 
               type="email" 
               placeholder="Email" 
               className="h-12 text-base"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              required
             />
             <Textarea 
               placeholder="Расскажите о вашем проекте"
               className="min-h-[150px] text-base"
+              value={formData.message}
+              onChange={(e) => setFormData({...formData, message: e.target.value})}
+              required
             />
-            <Button size="lg" className="w-full md:w-auto px-12">
-              Отправить
+            <Button 
+              type="submit" 
+              size="lg" 
+              className="w-full md:w-auto px-12"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Отправка...' : 'Отправить'}
             </Button>
           </form>
 
@@ -259,7 +295,7 @@ export default function Index() {
           <div className="max-w-6xl w-full">
             <img 
               src={portfolioItems.find(item => item.id === lightboxImage)?.image}
-              alt="Full size"
+              alt={portfolioItems.find(item => item.id === lightboxImage)?.title || "Архитектурная визуализация"}
               className="w-full h-auto max-h-[85vh] object-contain animate-scale-in"
             />
             <div className="text-white text-center mt-6">
